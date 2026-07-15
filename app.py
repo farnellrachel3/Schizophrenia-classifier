@@ -73,7 +73,6 @@ def load_and_train_model():
         columns=['Predicted SZ', 'Predicted BP', 'Predicted MDD']
     )
     
-    # Pre-compute SHAP values for validation overview to save processing time
     explainer = shap.TreeExplainer(clf)
     shap_vals = explainer.shap_values(X_test_m)
     
@@ -108,11 +107,18 @@ with col1:
     prediction_proba = multi_classifier.predict_proba(patient_vector)
     classes = multi_classifier.classes_
     
-    st.metric(label="Predicted Diagnostics Classification Target", value=f"⚠️ {prediction}")
+    st.metric(label="Predicted Diagnostics Classification Target", value=f"⚠️ {prediction[0]}")
     st.metric(label="Derived Bio-Damage vs Repair Index Score", value=f"{damage_repair_index:.3f}")
     
     st.write("**Algorithm Confidence Distribution Matrix:**")
-proba_df = pd.DataFrame({"Diagnostic Group": classes, "Confidence Probability": prediction_proba[0]})
+    
+    # FIX: Flatten the multi-dimensional prediction probabilities array to line up matching array rows
+    flattened_probabilities = prediction_proba[0]
+    
+    proba_df = pd.DataFrame({
+        "Diagnostic Group": classes, 
+        "Confidence Probability": flattened_probabilities
+    })
     proba_df["Confidence Probability"] = proba_df["Confidence Probability"].map(lambda x: f"{x*100:.1f}%")
     st.table(proba_df)
 
@@ -141,3 +147,4 @@ shap.summary_plot(shap_values, X_test_data, class_names=list(multi_classifier.cl
 plt.title("SHAP Global Feature Importance Profile", fontweight='bold', fontsize=12, pad=15)
 plt.tight_layout()
 st.pyplot(fig_shap)
+
