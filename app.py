@@ -1,11 +1,16 @@
 import streamlit as st
 import pandas as pd
+st.set_page_config(page_title="Multi-Pathway Psychiatric Classifier", layout="wide")
+st.sidebar.image("hospital_logo.png", use_container_width=True)
+st.sidebar.write("---")
+
+
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.set_page_config(page_title="Multi-Pathway Psychiatric Classifier", layout="wide")
+
 
 @st.cache_resource
 def train_pipeline_engine():
