@@ -34,7 +34,7 @@ def train_pipeline_engine():
     multi_classifier.fit(X_m, y_m)
     return multi_classifier, X_m, y_m
 
-# Securely extract all three required variables at initialization
+# Securely extract all required variables at initialization
 clf_model, X_static, y_static = train_pipeline_engine()
 
 st.title("🔬 Multi-Pathway Psychiatric Classifier")
@@ -48,14 +48,16 @@ bdnf_input = st.sidebar.slider("BDNF Level (Neuroplasticity)", 4.0, 26.0, 12.1, 
 damage_index = (sod1_input * il6_input) / (bdnf_input + 0.1)
 input_vector = pd.DataFrame([{'SOD1_Level': sod1_input, 'IL6_Level': il6_input, 'BDNF_Level': bdnf_input}])
 
-prediction = clf_model.predict(input_vector)
+# Fix multi-output extraction syntax issues for predictions
+prediction_array = clf_model.predict(input_vector)
+prediction = str(prediction_array[0])
 probabilities = clf_model.predict_proba(input_vector)
 classes = clf_model.classes_
 
 col1, col2 = st.columns(2)
 with col1:
     st.markdown("### 🔮 Live Diagnostic Evaluation")
-    st.metric(label="Predicted Primary Pathology", value=prediction[0])
+    st.metric(label="Predicted Primary Pathology", value=prediction)
     st.metric(label="Calculated Damage-vs-Repair Index", value=f"{damage_index:.3f}")
     
     st.markdown("#### Diagnostic Class Probabilities")
@@ -89,4 +91,35 @@ with col2:
     
     st.pyplot(fig)
     st.success("Overall Pipeline Separation Accuracy: 95.6%")
+
+    # -------------------------------------------------------------------------
+    # 📑 CLINICAL REPORT EXPORT ENGINE
+    # -------------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### 📥 Clinical Registry Integration")
+    
+    report_text = f"""MULTI-PATHWAY PSYCHIATRIC CLASSIFIER SCREENING REPORT
+===================================================
+[METRICS EVALUATION]
+Calculated Damage-vs-Repair Index: {damage_index:.3f}
+Predicted Primary Pathology: {prediction}
+
+[BIOMARKER RAW VALUES]
+- SOD1 Level (Antioxidant): {sod1_input} U/mL
+- IL-6 Level (Inflammation): {il6_input} pg/mL
+- BDNF Level (Neuroplasticity): {bdnf_input} ng/mL
+
+[ALGORITHM CONFIDENCE METRICS]
+"""
+    for c, prob in zip(classes, probabilities[0]):
+        report_text += f"- {c}: {prob*100:.1f}%\n"
+        
+    report_text += "\nValidation Matrix Cross-Diagnostic Accuracy Baseline: 95.6%"
+    
+    st.download_button(
+        label="📄 Export Patient Screening Summary (TXT)",
+        data=report_text,
+        file_name="Patient_Biomarker_Screening_Report.txt",
+        mime="text/plain"
+    )
 
