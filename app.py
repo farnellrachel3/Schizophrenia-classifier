@@ -112,7 +112,7 @@ with col1:
     st.metric(label="Derived Bio-Damage vs Repair Index Score", value=f"{damage_repair_index:.3f}")
     
     st.write("**Algorithm Confidence Distribution Matrix:**")
-    proba_df = pd.DataFrame({"Diagnostic Group": classes, "Confidence Probability": prediction_proba})
+proba_df = pd.DataFrame({"Diagnostic Group": classes, "Confidence Probability": prediction_proba[0]})
     proba_df["Confidence Probability"] = proba_df["Confidence Probability"].map(lambda x: f"{x*100:.1f}%")
     st.table(proba_df)
 
