@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(page_title="Multi-Pathway Psychiatric Classifier", layout="wide")
 try:
-    st.sidebar.image("hospital_logo.png", use_container_width=True)
+st.sidebar.image("https://icons8.com", use_container_width=True)
 except Exception:
     st.sidebar.markdown("### 🏥 **CLINICAL AI PORTAL**")
 st.sidebar.write("---")
